@@ -7,4 +7,4 @@ cli = FlaskGroup(src)
 CORS(src)
 
 if __name__ == '__main__':
-    src.run()
+    src.run(debug=True)
