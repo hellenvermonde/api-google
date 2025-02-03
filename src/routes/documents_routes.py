@@ -2,9 +2,9 @@ from flask import Blueprint, jsonify, request # type: ignore
 from ..findDocuments.controllers import documents_controller
 
 
-documents_bp = Blueprint('chamados', __name__)
+documents_bp = Blueprint('documentos', __name__)
 
-@documents_bp.route('/get', methods=['POST', 'GET'])
+@documents_bp.route('/listAll', methods=['POST', 'GET'])
 def get_documents():
     responde = documents_controller.get_infos_all_documents()
     return jsonify(responde)

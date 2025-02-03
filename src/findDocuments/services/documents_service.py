@@ -1,23 +1,28 @@
+from flask import make_response, jsonify
 from src import db
 from src.models.documentos import Documentos
+import src.integrations.google_drive as google_drive
+import json
 
 def get_all_documents():
-    docuemntos_base = Documentos.query.all()
+    service_drive = google_drive.main()
     
-    if not docuemntos_base:
-        return{'erro':404, 'message':'Documentos não encontrados'}
+    # Call the Drive v3 API
+    results = (
+        service_drive.files()
+        .list(pageSize=10, fields="nextPageToken, files(id, name)")
+        .execute()
+    )
     
-    documentos_serializados = []
-    for documento_index in docuemntos_base:
-        documento_serializado = {
-            'id_emp': documento_index.id_emp,
-            'bairro': documento_index.bairro,
-            'cartorio': documento_index.cartorio,
-            # Adicionar outros atributos conforme necessário
-        }
-        documentos_serializados.append(documento_serializado)
+    items_drive = results.get("files", [])
     
-    return documentos_serializados
+    if not items_drive:
+        return jsonify({'error': 404, 'message': 'Itens não encontrados'}), 404
+    
+    documents = [{'id': item['id'], 'name': item['name']} for item in items_drive]
+    # return json.dumps({"files": documents}, indent=2)
+    return documents
+    
 
 def get_document(id_emp):
     documentos_base = Documentos.query.get(id_emp)
